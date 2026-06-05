@@ -135,20 +135,24 @@ subquestion: |
 
   Most people take about 10 minutes to complete this interview.
 ---
-id: Service Information
+id: Service Date
 question: |
-  Service Information
+  Service Date
 subquestion: |
   Please have the date and details of the papers ready.
 fields:
   - "Date of service": service_date
     datatype: date
-  - "Details of papers served": papers_served
-    input type: area
-  - "Plaintiff was served": Plaintiff_served
-    datatype: yesno
-  - "Defendant was served": Defendant_served
-    datatype: yesno
+---
+id: Person Served
+question: |
+  Person Served
+fields:
+  - "Name": person_served
+    input type: radio
+    choices: 
+      - ${ other_parties[0].name.full() }
+      - Other
 ---
 id: Type of Service
 question: |
@@ -222,14 +226,6 @@ review:
     button: |
       **Date of service**:
       ${ service_date }
-  - Edit: Plaintiff_served
-    button: |
-      **Plaintiff was served**:
-      ${ word(yesno(Plaintiff_served)) }
-  - Edit: Defendant_served
-    button: |
-      **Defendant was served**:
-      ${ word(yesno(Defendant_served)) }
   - Edit: papers_served
     button: |
       **Details of papers served**:
@@ -351,13 +347,8 @@ attachment:
       - "signature_date": ${ signature_date }
       - "service_date": ${ service_date.format() }
       - "users5_name": ${ users[4] }
-      - "Plaintiff_served": ${ Plaintiff_served }
-      - "Defendant_served": ${ Defendant_served }
       - "papers_served": ${ papers_served }
       - "personal_service": ${ personal_service }
       - "users1_address_block": ${ users[0].address.block() }
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_email": ${ users[0].email }
-
-
-
