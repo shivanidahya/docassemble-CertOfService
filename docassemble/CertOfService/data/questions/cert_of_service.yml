@@ -100,9 +100,9 @@ code: |
   docket_number
   other_parties[0].address.address
   set_progress(40)
-  set_progress(60)
   signature_date
   basic_questions_signature_flow
+  set_progress(60)
   interview_order_cert_of_service = True
 ---
 comment: |
@@ -114,6 +114,7 @@ code: |
   cert_of_service_intro
   interview_order_cert_of_service
   cert_of_service_preview_question
+  signature_date
   
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
@@ -172,7 +173,6 @@ code: |
   elif user_ask_role == "plaintiff":
     plaintiff_served = False
 ---
-
 id: Service Date
 question: |
   Service Date
@@ -227,14 +227,15 @@ subquestion: |
 continue button field: cert_of_service_preview_question    
 ---
 code: |
-  signature_fields = ['users[0].signature']
----
-code: |
   # This is a placeholder for the addresses that will be searched
   # for matching address to court. Edit if court venue is based on 
   # a different address than the user's
   [user.address.address for user in users.complete_elements()]
   addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: Sign Your Document
+code: |
+  signature_fields = ["users[0].signature"]
 ---
 id: cert of service review screen
 event: review_cert_of_service
@@ -300,7 +301,6 @@ edit:
   - name.first
   - address.address
 confirm: True
-
 ---
 id: edit users
 continue button field: users.revisit
@@ -331,7 +331,6 @@ edit:
   - phone_number
   - email
 confirm: True
-
 ---
 id: download cert_of_service
 event: cert_of_service_download
@@ -387,12 +386,12 @@ attachment:
       - "docket_number": ${ docket_number }
       - "other_parties1_address_block": ${ other_parties[0].address.block() }
       - "other_party_address_block": ${ other_parties[0].address.block() }
-      - "users2_name": ${ users[1] }
-      - "users1_signature": ${ users[0].signature }
+      - "users2_name": ${ users[0] }
+      - "signature": ${ users[0].signature }
       - "signature_date": ${ signature_date }
       - "service_date": ${ service_date.format() }
       - "papers_served": ${ papers_served }
       - "users1_address_block": ${ users[0].address.block() }
       - "users1_phone_number": ${ users[0].phone_number }
-      - "users1_email": ${ users[0].email }
-      - "other_parties1_name": ${ other_parties[0] }
+      - "users1_email": ${ users[0].email 
+      - "other_parties1_name": ${ other_parties[0] 
