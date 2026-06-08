@@ -393,5 +393,5 @@ attachment:
       - "papers_served": ${ papers_served }
       - "users1_address_block": ${ users[0].address.block() }
       - "users1_phone_number": ${ users[0].phone_number }
-      - "users1_email": ${ users[0].email }
-      - "other_parties1_name": ${ other_parties[0] }
+      - "users1_email": ${ users[0].email 
+      - "other_parties1_name": ${ other_parties[0] 
