@@ -83,15 +83,19 @@ id: interview_order_cert_of_service
 mandatory: True
 code: |
   # Set the allowed courts for this interview
+  # You can set user_ask_role directly instead to either "plaintiff" or "defendant"
   allowed_courts = []
-  user_role = "plaintiff"
-  user_ask_role = "plaintiff"
+  al_intro_screen
+  cert_of_service_intro
+  user_role 
+  user_ask_role 
   users.gather()
   users[0].address.address
   users[0].phone_number
   users[0].email
   set_parts(subtitle=str(users))
   service_date
+  papers_served
   personal_service
   set_progress(20)
   other_parties.gather()
@@ -139,6 +143,38 @@ subquestion: |
 
   Most people take about 10-15 minutes to complete this interview.
 ---
+id: Is the user the plaintiff or defendant?
+question: |
+  Did you start this case, or are you responding to a case
+  that someone else started?
+subquestion: |
+  ${ collapse_template(help_user_ask_role_template) }
+fields: 
+  - no label: user_ask_role
+    datatype: radio
+    choices:
+      - Starting a new case: plaintiff
+      - Responding to a case: defendant
+  - note: |
+      Okay, you are the **Plaintiff** or Petitioner in this case. The other 
+      side is the **Defendant** or Respondent.
+    show if:
+      variable: user_ask_role
+      is: "plaintiff"
+  - note: |
+      Okay, you are the **Defendant** or Respondent in this case. The other 
+      side is the **Plaintiff** or Petitioner.
+    show if:
+      variable: user_ask_role
+      is: "defendant"
+---
+code: |
+  if user_ask_role == "defendant":
+    defendant_served = False
+  elif user_ask_role == "plaintiff":
+    plaintiff_served = False
+---
+
 id: Service Date
 question: |
   Service Date
@@ -148,15 +184,12 @@ fields:
   - "Date of service": service_date
     datatype: date
 ---
-id: Person Served
+id: Details of Papers Served
 question: |
-  Person Served
+  Details of Papers Served
 fields:
-  - "Name": person_served
-    input type: radio
-    choices: 
-      - ${ other_parties[0].name.full() }
-      - Other
+  - "List of papers served": papers_served
+    input type: area
 ---
 id: Type of Service
 question: |
@@ -168,6 +201,16 @@ fields:
     datatype: yesno
   - "Mailed a true copy of the papers": I_mailed_a_true_and_correct_copy_of_the_above
     datatype: yesno
+---
+id: Person Served
+question: |
+  Person Served
+fields:
+  - "Name": person_served
+    input type: radio
+    choices: 
+      - ${ other_parties[0].name.full() }
+      - Other
 ---
 id: preview cert_of_service
 question: |
