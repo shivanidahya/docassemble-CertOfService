@@ -135,7 +135,7 @@ subquestion: |
   1. The Docket No.
   2. Which papers were served.
   3. The address of where the papers were served. 
-  4. The person's served contact information. 
+  4. Who was served. 
 
   Most people take about 10-15 minutes to complete this interview.
 ---
@@ -143,7 +143,7 @@ id: Service Date
 question: |
   Service Date
 subquestion: |
-  Please have the date and details of the papers ready.
+  When were the papers served?
 fields:
   - "Date of service": service_date
     datatype: date
