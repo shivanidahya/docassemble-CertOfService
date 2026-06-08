@@ -113,8 +113,8 @@ code: |
   al_intro_screen
   cert_of_service_intro
   interview_order_cert_of_service
-  cert_of_service_preview_question
   signature_date
+  cert_of_service_preview_question
   
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
@@ -212,9 +212,9 @@ fields:
 ---
 id: preview cert_of_service
 question: |
-  Preview your form before you sign it
+  Preview your form. 
 subquestion: |
-  Here is a preview of the form you will sign on the next page.   
+  Here is a preview of the form.   
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
@@ -332,6 +332,53 @@ edit:
   - email
 confirm: True
 ---
+id: your contact information
+question: |
+  % if al_person_answering == "user":
+  What is your contact information?
+  % else:
+  What is ${ users[0] }'s contact information?
+  % endif
+subquestion: |
+  % if al_person_answering == "user":
+  Include at least **one** way to reach you other than by mail.
+  % else:
+  Include at least **one** way to reach ${ users[0] } other than by mail.
+  % endif
+
+  ${ collapse_template(why_contact_info_needed_template) }
+fields:  
+  - Phone number: users[0].phone_number
+    required: True
+    datatype: al_international_phone
+  - Email address: users[0].email    
+    datatype: email
+    required: True
+  - label: |
+      % if al_person_answering == "user":
+      Other ways to reach you
+      % else:
+      Other ways to reach ${ users[0] }
+      % endif
+    field: users[0].other_contact_method
+    input type: area
+    required: False
+    help: |
+      If you do not have a phone number or email, provide
+      specific contact instructions. For example, use a friend's phone number.
+      But the friend must be someone you can rely on to give you a
+      message.
+validation code: |
+  if (
+    not showifdef("users[0].phone_number")
+    and (not showifdef("users[0].email"))
+    and (not showifdef("users[0].other_contact_method"))
+  ):
+    validation_error(
+      word("You need to provide at least one contact method."),
+      field="users[0].other_contact_method",
+    )
+---
 id: download cert_of_service
 event: cert_of_service_download
 question: |
@@ -393,5 +440,5 @@ attachment:
       - "papers_served": ${ papers_served }
       - "users1_address_block": ${ users[0].address.block() }
       - "users1_phone_number": ${ users[0].phone_number }
-      - "users1_email": ${ users[0].email 
-      - "other_parties1_name": ${ other_parties[0] 
+      - "users1_email": ${ users[0].email }
+      - "other_parties1_name": ${ other_parties[0] }
