@@ -80,12 +80,16 @@ sections:
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_cert_of_service
+mandatory: True
 code: |
   # Set the allowed courts for this interview
   allowed_courts = []
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
   users.gather()
+  users[0].address.address
+  users[0].phone_number
+  users[0].email
   set_parts(subtitle=str(users))
   service_date
   personal_service
@@ -94,10 +98,7 @@ code: |
   docket_number
   other_parties[0].address.address
   set_progress(40)
-  users[0].address.address
-  users[0].phone_number
   set_progress(60)
-  users[0].email
   signature_date
   basic_questions_signature_flow
   interview_order_cert_of_service = True
@@ -110,7 +111,6 @@ code: |
   al_intro_screen
   cert_of_service_intro
   interview_order_cert_of_service
-
   cert_of_service_preview_question
   
   # Store anonymous data for analytics / statistics
