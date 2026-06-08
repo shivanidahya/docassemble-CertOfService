@@ -5,9 +5,9 @@ include:
 ---
 metadata:
   title: >-
-    Cert of Service
+    Certificate of Service
   short title: >-
-    Cert of Service
+    Certificate of Service
   description: |-
     This interview helps someone in Massachusetts complete a certificate of service form.
   before_you_start: |
@@ -16,7 +16,9 @@ metadata:
     Before you get started, please know:
     
     1. The Docket No.
-    2. Which papers were served
+    2. Which papers were served.
+    3. The address of where the papers were served. 
+    
   when_you_are_finished: |
   efiling_enabled: False
   integrated_efiling: False
@@ -121,19 +123,21 @@ code: |
   )
   cert_of_service_download
 ---
-id: Cert_of_Service
+id: Certificate_of_Service
 continue button field: cert_of_service_intro
 question: |
-  Cert of Service
+  Certificate of Service
 subquestion: |
   This interview will help you provide certificate of service form.
   
   Before you get started, please know:
   
   1. The Docket No.
-  2. Which papers were served
+  2. Which papers were served.
+  3. The address of where the papers were served. 
+  4. The person's served contact information. 
 
-  Most people take about 10 minutes to complete this interview.
+  Most people take about 10-15 minutes to complete this interview.
 ---
 id: Service Date
 question: |
