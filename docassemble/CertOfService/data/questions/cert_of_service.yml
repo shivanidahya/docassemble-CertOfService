@@ -80,13 +80,11 @@ sections:
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_cert_of_service
-mandatory: True
 code: |
   # Set the allowed courts for this interview
+  # Below sets the user_role and user_ask_role by asking a question.
   # You can set user_ask_role directly instead to either "plaintiff" or "defendant"
   allowed_courts = []
-  al_intro_screen
-  cert_of_service_intro
   user_role 
   user_ask_role 
   users.gather()
@@ -393,9 +391,8 @@ attachment:
       - "users1_signature": ${ users[0].signature }
       - "signature_date": ${ signature_date }
       - "service_date": ${ service_date.format() }
-      - "users5_name": ${ users[4] }
       - "papers_served": ${ papers_served }
-      - "personal_service": ${ personal_service }
       - "users1_address_block": ${ users[0].address.block() }
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_email": ${ users[0].email }
+      - "other_parties1_name": shivani ${ other_parties[0] }
