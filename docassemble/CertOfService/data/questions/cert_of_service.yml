@@ -95,6 +95,7 @@ code: |
   service_date
   papers_served
   personal_service
+  person_served
   set_progress(20)
   other_parties.gather()
   docket_number
@@ -148,8 +149,8 @@ question: |
   that someone else started?
 subquestion: |
   ${ collapse_template(help_user_ask_role_template) }
-fields: 
-  - no label: user_ask_role
+fields:  
+  - Your role in this case: user_ask_role
     datatype: radio
     choices:
       - Starting a new case: plaintiff
@@ -168,10 +169,8 @@ fields:
       is: "defendant"
 ---
 code: |
-  if user_ask_role == "defendant":
-    defendant_served = False
-  elif user_ask_role == "plaintiff":
-    plaintiff_served = False
+  if user_ask_role == "plaintiff": 
+    defendant_served = True
 ---
 id: Service Date
 question: |
@@ -197,18 +196,29 @@ subquestion: |
 fields:
   - "Personal service was done": personal_service
     datatype: yesno
-  - "Mailed a true copy of the papers": I_mailed_a_true_and_correct_copy_of_the_above
+  - "Mailed a true copy of the papers": i_mailed_a_true_and_correct_copy_of_the_above
     datatype: yesno
 ---
 id: Person Served
 question: |
-  Person Served
+  Who did you serve?
+buttons:
+    - "The defendant": defendant_served
+    - "Other": person_served
+---
+id: persons address
+question: |
+  Where did you serve the papers?
 fields:
-  - "Name": person_served
-    input type: radio
-    choices: 
-      - ${ other_parties[0].name.full() }
-      - Other
+  - code: |
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+sets:
+  - x.address.address
+  - x.address.city
+  - x.address.zip
+  - x.address.unit
+  - x.address.state
+  - x.address.country
 ---
 id: preview cert_of_service
 question: |
@@ -242,10 +252,10 @@ event: review_cert_of_service
 question: |
   Review your answers
 review:
-  - Edit: I_mailed_a_true_and_correct_copy_of_the_above
+  - Edit: i_mailed_a_true_and_correct_copy_of_the_above
     button: |
       **Mailed a true copy of the papers**:
-      ${ word(yesno(I_mailed_a_true_and_correct_copy_of_the_above)) }
+      ${ word(yesno(i_mailed_a_true_and_correct_copy_of_the_above)) }
   - Edit: other_parties.revisit
     button: |
       **Other parties**
@@ -280,6 +290,14 @@ review:
     button: |
       **Personal service was done**:
       ${ word(yesno(personal_service)) }
+  - Edit: plaintiff_served
+    button: |
+      **Plaintiff received papers**: 
+      ${ word(yesno(plaintiff_served))}
+  - Edit: defendant_served
+    button: |
+      **Defendant received papers**:
+      ${ word(yesno(defendant_served)) }
 ---
 id: edit other parties
 continue button field: other_parties.revisit
@@ -426,7 +444,7 @@ attachment:
   skip undefined: True
   pdf template file: cert_of_service.pdf
   fields:
-      - "I_mailed_a_true_and_correct_copy_of_the_above": ${ I_mailed_a_true_and_correct_copy_of_the_above }
+      - "i_mailed_a_true_and_correct_copy_of_the_above": ${ i_mailed_a_true_and_correct_copy_of_the_above }
       - "other_party1": ${ other_parties[0] }
       - "other_party": ${ other_parties[0] }
       - "users1_name": ${ users[0] }
@@ -442,3 +460,6 @@ attachment:
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_email": ${ users[0].email }
       - "other_parties1_name": ${ other_parties[0] }
+      - "plaintiff_served": ${ plaintiff_served }
+      - "defendant_served": ${ defendant_served }
+      - "personal_service": ${ personal_service }
