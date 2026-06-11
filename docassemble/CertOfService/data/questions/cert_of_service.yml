@@ -11,12 +11,12 @@ metadata:
   description: |-
     This interview helps someone in Massachusetts complete a certificate of service form.
   before_you_start: |
-    This interview will help you complete a certificate of service form.
+    This interview will help you fill in a certificate of service form.
     
-    Before you get started, please know:
+    Before you get started, know:
     
     1. The Docket No.
-    2. Which papers were served.
+    2. Which papers were served.Certificate of Service Form
     3. The address of where the papers were served. 
     
   when_you_are_finished: |
@@ -42,7 +42,7 @@ metadata:
   original_form: []
   original_form_published_on: ""
   allowed_courts: []
-  typical_role: "plaintiff"
+  typical_role: "unknown"
   al_weaver_version: "2.1.0"
   generated_on: "2026-06-04"
   languages:
@@ -73,6 +73,8 @@ code: |
 ---
 objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
+  - other_parties: ALPeopleList.using(ask_number=False,target_number=1,there_are_any=True,there_is_another=False)
+  - service_address: ALAddress
 ---
 sections:
   - review_cert_of_service: Review your answers
@@ -87,18 +89,30 @@ code: |
   allowed_courts = []
   user_role 
   user_ask_role 
+  if user_ask_role == "defendant":
+    defendants_name_full = users[0].name.full()
+    plaintiffs_name_full = other_parties[0].name.full() 
+  else:
+    plaintiffs_name_full = users[0].name.full()
+    defendants_name_full = other_parties[0].name.full()
   users.gather()
   users[0].address.address
   users[0].phone_number
   users[0].email
+  other_parties.gather()
+  other_party = other_parties[0].name.full()
   set_parts(subtitle=str(users))
+  set_progress(20)
+  docket_number
   service_date
   papers_served
+  if user_ask_role == "defendant":
+    defendant_served = False
+    plaintiff_served = True
+  elif user_ask_role == "plaintiff":
+    plaintiff_served = False
+    defendant_served = True
   personal_service
-  person_served
-  set_progress(20)
-  other_parties.gather()
-  docket_number
   other_parties[0].address.address
   set_progress(40)
   signature_date
@@ -132,7 +146,7 @@ continue button field: cert_of_service_intro
 question: |
   Certificate of Service
 subquestion: |
-  This interview will help you provide certificate of service form.
+  This interview will help you fill in a Certificate of Service Form.
   
   Before you get started, please know:
   
@@ -141,7 +155,7 @@ subquestion: |
   3. The address of where the papers were served. 
   4. Who was served. 
 
-  Most people take about 10-15 minutes to complete this interview.
+  Most people take about 10-15 minutes to finish this interview.
 ---
 id: Is the user the plaintiff or defendant?
 question: |
@@ -168,9 +182,17 @@ fields:
       variable: user_ask_role
       is: "defendant"
 ---
-code: |
-  if user_ask_role == "plaintiff": 
-    defendant_served = True
+sets:
+  - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
+id: names of opposing parties
+question: |
+ Who is this case against?
+fields:
+  - code: |
+      other_parties[i].name_fields(person_or_business="unsure")
 ---
 id: Service Date
 question: |
@@ -196,15 +218,19 @@ subquestion: |
 fields:
   - "Personal service was done": personal_service
     datatype: yesno
-  - "Mailed a true copy of the papers": i_mailed_a_true_and_correct_copy_of_the_above
+  - "Mailed a true copy of the papers": service_by_mail
     datatype: yesno
 ---
 id: Person Served
 question: |
-  Who did you serve?
-buttons:
-    - "The defendant": defendant_served
-    - "Other": person_served
+  Person Served
+subquestion: |
+  Who did you serve the papers to?
+fields:
+  - "Plaintiff": plaintiff_served
+    datatype: yesno
+  - "Defendant": defendant_served
+    datatype: yesno
 ---
 id: persons address
 question: |
@@ -252,10 +278,10 @@ event: review_cert_of_service
 question: |
   Review your answers
 review:
-  - Edit: i_mailed_a_true_and_correct_copy_of_the_above
+  - Edit: service_by_mail
     button: |
       **Mailed a true copy of the papers**:
-      ${ word(yesno(i_mailed_a_true_and_correct_copy_of_the_above)) }
+      ${ word(yesno(service_by_mail)) }
   - Edit: other_parties.revisit
     button: |
       **Other parties**
@@ -444,13 +470,13 @@ attachment:
   skip undefined: True
   pdf template file: cert_of_service.pdf
   fields:
-      - "i_mailed_a_true_and_correct_copy_of_the_above": ${ i_mailed_a_true_and_correct_copy_of_the_above }
-      - "other_party1": ${ other_parties[0] }
-      - "other_party": ${ other_parties[0] }
-      - "users1_name": ${ users[0] }
+      - "i_mailed_a_true_and_correct_copy_of_the_above": ${ service_by_mail }
+      - "other_party": ${ " " if service_by_mail else other_party }
+      - "other_party1": ${ other_party if service_by_mail else " " }
+      - "users1_name": ${ plaintiffs_name_full }
       - "docket_number": ${ docket_number }
-      - "other_parties1_address_block": ${ other_parties[0].address.block() }
-      - "other_party_address_block": ${ other_parties[0].address.block() }
+      - "other_party_address_block": ${ " " if service_by_mail else  other_parties[0].address.block() }
+      - "other_parties1_address_block": ${ other_parties[0].address.block() if service_by_mail else " " }
       - "users2_name": ${ users[0] }
       - "signature": ${ users[0].signature }
       - "signature_date": ${ signature_date }
@@ -459,7 +485,7 @@ attachment:
       - "users1_address_block": ${ users[0].address.block() }
       - "users1_phone_number": ${ users[0].phone_number }
       - "users1_email": ${ users[0].email }
-      - "other_parties1_name": ${ other_parties[0] }
+      - "other_parties1_name": ${ defendants_name_full }
       - "plaintiff_served": ${ plaintiff_served }
       - "defendant_served": ${ defendant_served }
       - "personal_service": ${ personal_service }
